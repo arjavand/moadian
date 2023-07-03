@@ -172,7 +172,7 @@ def create_package(
     if header:
         for key in headers_keys:
             val = header.get(key, None)
-            if val:
+            if val not in [None, ""]:
                 _type = key_types[key]
                 val = _type(val)
                 _header[key] = val
@@ -183,7 +183,7 @@ def create_package(
             _body = {}
             for key in body_keys:
                 val = b.get(key)
-                if val:
+                if val not in [None, ""]:
                     _type = key_types[key]
                     val = _type(val)
                     _body[key] = val
@@ -194,7 +194,7 @@ def create_package(
             _payments = {}
             for key in payment_keys:
                 val = payment.get(key)
-                if val:
+                if val not in [None, ""]:
                     _type = key_types[key]
                     val = _type(val)
                     _payments[key] = val

@@ -153,7 +153,7 @@ class TaxApi(TaxRequest):
                     "indatim": packet["data"]["header"]["indatim"],
                 }
             )
-        tax_public_keys = self.get_server_information().get("public_keys")[0]
+        tax_public_keys = self.get_server_information().get("publicKeys")[0]
         public_key, public_key_id = tax_public_keys["key"], tax_public_keys["id"]
         encrypted_packets = Encrypter(public_key, public_key_id)
         encrypted_packets.encrypt(full_packets)
@@ -162,7 +162,9 @@ class TaxApi(TaxRequest):
     def get_server_information(self) -> dict:
         url = f"{self.sync_url}/GET_SERVER_INFORMATION"
         packet = self.packet_creator("GET_SERVER_INFORMATION")
-        return self.manager(url, packets=packet, token=False, sign=False)
+        res = self.manager(url, packets=packet, token=False, sign=False)
+        print(res)
+        return res.get("result", {}).get("data", {})
 
     def get_token(self) -> dict:
         url = f"{self.sync_url}/GET_TOKEN"
