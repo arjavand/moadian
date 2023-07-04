@@ -163,7 +163,6 @@ class TaxApi(TaxRequest):
         url = f"{self.sync_url}/GET_SERVER_INFORMATION"
         packet = self.packet_creator("GET_SERVER_INFORMATION")
         res = self.manager(url, packets=packet, token=False, sign=False)
-        print(res)
         return res.get("result", {}).get("data", {})
 
     def get_token(self) -> dict:

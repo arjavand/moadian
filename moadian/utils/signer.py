@@ -16,12 +16,6 @@ class Signer:
                 # try:
                 with open(private_key, "rb") as file:
                     private_key = file.read()
-                # except FileNotFoundError:
-                #     print("Private key file not found.")
-                # except IOError as ex:
-                #     print("An error occurred while reading the private key file:", str(ex))
-                # except Exception as ex:
-                #     print("An unexpected error occurred:", str(ex))
             elif not private_key.startswith("-----BEGIN"):
                 private_key = f"-----BEGIN PRIVATE KEY-----\n{private_key.strip()}\n-----END PRIVATE KEY-----"
         self.private_key = RSA.import_key(private_key)
@@ -32,24 +26,16 @@ class Signer:
             signature = pkcs1_15.new(self.private_key).sign(hash_obj)
             signed = base64.b64encode(signature).decode("utf-8")
             if public_key:
-                try:
-                    hash_obj = SHA256.new(data.encode("utf-8"))
-                    signature = base64.b64decode(signed)
-                    public_key = f"-----BEGIN PUBLIC KEY-----\n{public_key.strip()}\n-----END PUBLIC KEY-----"
-                    rsa_key = RSA.import_key(public_key)
-                    verifier = pkcs1_15.new(rsa_key)
-                    verifier.verify(hash_obj, signature)
-                    print("sign verified successfully")
-                except (ValueError, TypeError):
-                    print("sign not verified")
+                hash_obj = SHA256.new(data.encode("utf-8"))
+                signature = base64.b64decode(signed)
+                public_key = f"-----BEGIN PUBLIC KEY-----\n{public_key.strip()}\n-----END PUBLIC KEY-----"
+                rsa_key = RSA.import_key(public_key)
+                verifier = pkcs1_15.new(rsa_key)
+                verifier.verify(hash_obj, signature)
+                print("sign verified successfully")
             return signed
-        except UnicodeEncodeError as e:
-            print("UnicodeEncodeError occurred:", str(e))
-        except ValueError as e:
-            print("ValueError occurred:", str(e))
-        except Exception as e:
-            print("An error occurred:", str(e))
-        raise NotImplementedError("invalid sign")
+        except (UnicodeEncodeError, ValueError, KeyError, Exception):
+            raise NotImplementedError("invalid sign")
 
     @staticmethod
     def get_public_key_from_base64(key):
@@ -57,6 +43,5 @@ class Signer:
             byte_key = base64.b64decode(key)
             x509_public_key = RSA.import_key(byte_key)
             return x509_public_key
-        except Exception as e:
-            print(e)
-        return None
+        except Exception:
+            return None
