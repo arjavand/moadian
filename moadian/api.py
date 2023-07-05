@@ -39,16 +39,14 @@ class TaxApi(TaxRequest):
         self.async_url = f"{self.TAX_API_URL}/async/{priority}"
         self.json_normalizer = JSONNormalizer()
         self.signer = Signer(self.private_key)
-        self.timestamp = self.timestamp_validator(timestamp)
+        self.timestamp = self.timestamp_validator(timestamp) if timestamp else None
         self.return_content = return_content
         if get_token:
             self.get_token()
 
     @staticmethod
     def timestamp_validator(timestamp):
-        if timestamp:
-            datetime.fromtimestamp(timestamp)
-        return timestamp
+        return datetime.fromtimestamp(timestamp)
 
     @staticmethod
     def row_data_creator(packet: Union[list, dict], signature: str = None, time: int = 1, packets=False) -> dict:
@@ -125,11 +123,14 @@ class TaxApi(TaxRequest):
         packets_summary = []
         unique_tax_id = UniqueTaxID(self.fiscalId)
         for packet in packets:
-            timestamp = headers.get("timestamp") if not self.timestamp else self.timestamp
-            serial_number = packet.pop("serial_number", 1)
+            if "indatim" not in packet["header"] or packet["header"]["indatim"] is None:
+                timestamp = headers.get("timestamp") if not self.timestamp else self.timestamp
+                packet["header"]["indatim"] = timestamp
+            else:
+                timestamp = packet["header"]["indatim"]
+            serial_number = packet.get("serial_number", 1)
             uid = packet.pop("uid", True)
             packet["header"]["tins"] = self.economic_code
-            packet["header"]["indatim"] = timestamp
             packet["header"]["taxid"] = unique_tax_id.generate(timestamp, serial_number)
             data = create_package(**packet)
             normalized_data = self.json_normalizer.normal_json(data)

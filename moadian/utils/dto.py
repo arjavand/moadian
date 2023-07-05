@@ -153,6 +153,7 @@ def create_package(
     body: Union[list, None] = None,
     payments: Union[list, None] = None,
     extension: Union[list, None] = None,
+    **kwargs
 ) -> dict:
     if extension is None:
         extension = []
