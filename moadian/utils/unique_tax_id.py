@@ -68,7 +68,7 @@ class UniqueTaxID:
 
     @staticmethod
     def invoice_date_normalizer(invoice_date):
-        if invoice_date.isnumeric():
+        if str(invoice_date).isnumeric():
             invoice_date = datetime.fromtimestamp(int(invoice_date) / 1000)
             invoice_date = invoice_date.strftime("%Y-%m-%d %H:%M:%S")
         invoice_date = invoice_date.replace("/", "-")
