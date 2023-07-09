@@ -3,16 +3,18 @@ import uuid
 from datetime import datetime
 from typing import Union, BinaryIO
 
-from moadian.utils.request import TaxRequest
-from moadian.utils.decorators import token
-from moadian.utils.encrypter import Encrypter
-from moadian.utils.dto import create_package
-from moadian.utils.normalizer import JSONNormalizer
 from moadian.utils.signer import Signer
+from moadian.utils.decorators import token
+from moadian.utils.request import TaxRequest
+from moadian.utils.dto import create_package
+from moadian.utils.encrypter import Encrypter
+from moadian.utils.normalizer import JSONNormalizer
 from moadian.utils.unique_tax_id import UniqueTaxID
 
 
 class TaxApi(TaxRequest):
+    __name__ = "moadian_api"
+
     TAX_API_URL = "https://tp.tax.gov.ir/req/api/self-tsp"
     TAX_API_VERSION = "01"
 
@@ -37,15 +39,13 @@ class TaxApi(TaxRequest):
         self.public_key = public_key  # used for check sign verification
         self.sync_url = f"{self.TAX_API_URL}/sync"
         self.async_url = f"{self.TAX_API_URL}/async/{priority}"
-        self.json_normalizer = JSONNormalizer()
-        self.signer = Signer(self.private_key)
         self.timestamp = self.timestamp_validator(timestamp) if timestamp else None
         self.return_content = return_content
         if get_token:
             self.get_token()
 
     @staticmethod
-    def timestamp_validator(timestamp):
+    def timestamp_validator(timestamp: int) -> datetime:
         return datetime.fromtimestamp(timestamp)
 
     @staticmethod
@@ -85,8 +85,8 @@ class TaxApi(TaxRequest):
         if headers is None:
             headers = self.headers(token=token)
         if sign:
-            normalized_packet = self.json_normalizer.normal_json(packets, headers)
-            signature = self.signer.sign(normalized_packet)
+            normalized_packet = JSONNormalizer().normal_json(packets, headers)
+            signature = Signer(self.private_key).sign(normalized_packet)
         data = self.row_data_creator(packet=packets, signature=signature, packets=isinstance(packets, list))
         self.request(url, data, headers)
         return self.response()
@@ -102,19 +102,20 @@ class TaxApi(TaxRequest):
             "payment" : [{}]
         }]
         :return: ({
-            'signature': None,
-            'signature_key_id': None,
-            'timestamp': '',
-            'result': [{
-                'uid': '',
-                'referenceNumber': '',
-                'errorCode': None,
-                'errorDetail': None
+            "signature": None,
+            "signature_key_id": None,
+            "timestamp": '',
+            "result": [{
+                "uid": '',
+                "referenceNumber": '',
+                "errorCode": None,
+                "errorDetail": None
             }]
         },[{
             "serial_number": '',
             "uid": '',
             "unique_tax_id": '',
+            "indatim": ''
         }])
         """
         url = self.async_url
@@ -133,8 +134,8 @@ class TaxApi(TaxRequest):
             packet["header"]["tins"] = self.economic_code
             packet["header"]["taxid"] = unique_tax_id.generate(timestamp, serial_number)
             data = create_package(**packet)
-            normalized_data = self.json_normalizer.normal_json(data)
-            dataSignature = self.signer.sign(normalized_data, public_key=self.public_key)
+            normalized_data = JSONNormalizer().normal_json(data)
+            dataSignature = Signer(self.private_key).sign(normalized_data, public_key=self.public_key)
             packet_type = f"INVOICE.V{self.TAX_API_VERSION}"
             packet = self.packet_creator(
                 packet_type=packet_type,
@@ -223,6 +224,7 @@ class TaxApi(TaxRequest):
     def get_inquiry_by_time_range(
         self, start_date: Union[str, int], end_date: Union[str, int]
     ) -> dict:  # jalali format YYYYMMDD
+        # TODO: complete regex for jalali format
         url = f"{self.sync_url}/INQUIRY_BY_TIME_RANGE"
         if not any(
             [
@@ -231,7 +233,6 @@ class TaxApi(TaxRequest):
             ]
         ):
             raise ValueError("Type of start_date or end_date must be string or integer")
-        # TODO: complete regex for jalali format
         if not any(
             [
                 re.match(r"\d{8}", str(start_date)),

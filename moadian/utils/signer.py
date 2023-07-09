@@ -1,9 +1,9 @@
 import base64
 import os
 from typing import IO, BinaryIO
-from Crypto.Signature import pkcs1_15
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
+from Crypto.Signature import pkcs1_15
 from _io import BufferedReader, TextIOWrapper
 
 
