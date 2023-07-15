@@ -1,6 +1,5 @@
 import re
 import uuid
-from datetime import datetime
 from typing import Union, BinaryIO
 
 from moadian.utils.signer import Signer
@@ -8,6 +7,7 @@ from moadian.utils.decorators import token
 from moadian.utils.request import TaxRequest
 from moadian.utils.dto import create_package
 from moadian.utils.encrypter import Encrypter
+from moadian.utils.validators import key_validator, timestamp_validator
 from moadian.utils.normalizer import JSONNormalizer
 from moadian.utils.unique_tax_id import UniqueTaxID
 
@@ -35,18 +35,16 @@ class TaxApi(TaxRequest):
         self.expires_in = None
         self.economic_code = economic_code
         self.fiscalId = fiscalId
-        self.private_key = private_key
-        self.public_key = public_key  # used for check sign verification
+        self.private_key = key_validator(private_key)
+        self.public_key = (
+            key_validator(public_key, private=False) if public_key else None
+        )  # used for check sign verification
         self.sync_url = f"{self.TAX_API_URL}/sync"
         self.async_url = f"{self.TAX_API_URL}/async/{priority}"
-        self.timestamp = self.timestamp_validator(timestamp) if timestamp else None
+        self.timestamp = timestamp_validator(timestamp) if timestamp else None
         self.return_content = return_content
         if get_token:
             self.get_token()
-
-    @staticmethod
-    def timestamp_validator(timestamp: int) -> datetime:
-        return datetime.fromtimestamp(timestamp)
 
     @staticmethod
     def row_data_creator(packet: Union[list, dict], signature: str = None, time: int = 1, packets=False) -> dict:

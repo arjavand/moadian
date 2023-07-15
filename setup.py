@@ -39,3 +39,6 @@ setup(
         'urllib3==2.0.3',
     ],
 )
+
+# python3 setup.py sdist bdist_wheel
+# python3 -m build
