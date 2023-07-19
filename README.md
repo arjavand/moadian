@@ -1,5 +1,5 @@
 # Moadian
-### Iranian Tax Organization API service(سرویس ارسال صورت حساب مالیاتی به سامانه مودیان) 
+### Iranian Tax Organization API service (سرویس ارسال صورت حساب مالیاتی به سامانه مودیان) 
 
 Developed by Arjavand Co (شرکت ارجاوند). 
 [Arjavand.com](https://www.arjavand.com/)
@@ -55,7 +55,7 @@ or
                 "todam": "0",
             },
             "body" : [{
-                "sstid": "XXXXXXXXXXXXXXXX",
+                "sstid": "2330001031092",
                 "sstt": "فروش بسته نرم افزاری سامانه ارتباطات ابری تلوبال",
                 # "sstt": "Selling Telobal cloud communication system software package",
                 "am": "XX",
