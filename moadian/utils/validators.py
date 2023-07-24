@@ -1,27 +1,21 @@
-import os
+import re
 import base64
-import binascii
 from datetime import datetime
-from typing import IO, BinaryIO
 from Crypto.PublicKey import RSA
-from _io import BufferedReader, TextIOWrapper
 
 
-def key_validator(key: any, private: bool = True) -> any:
-    _type = "PRIVATE" if private else "PUBLIC"
-    if isinstance(key, (IO, BinaryIO, BufferedReader, TextIOWrapper)):
-        key = key.read()
-    elif type(key) == str:
-        if os.path.isfile(key):
-            with open(key, "rb") as file:
-                key = file.read()
-        elif not key.startswith("-----BEGIN"):
-            key = f"-----BEGIN {_type} KEY-----\n{key.strip()}\n-----END {_type} KEY-----"
+def key_validator(key: any, public: bool = False) -> any:
+    new_private_key = re.findall(r"(-BEGIN[A-Za-z ]*KEY-)?\n?([^-]\n?)(-*END[A-Za-z ]*KEY-)?", key)
     try:
-        RSA.import_key(base64.b64decode(key))
-    except (binascii.Error, Exception) as e:
-        raise ValueError(f"Invalid {_type.title()} key format. error({e})")
-    return key
+        if public:
+            key = new_private_key[0][1].replace("\n", "")
+            key = base64.b64decode(key)
+        else:
+            key = new_private_key[0][0] + "\n" + new_private_key[0][1].replace("\n", "") + "\n" + new_private_key[0][2]
+        RSA.import_key(key)
+        return key
+    except (ValueError, AttributeError) as e:
+        raise ValueError(f"Invalid {'Public' if public else 'Private'} key format. error({e})")
 
 
 def timestamp_validator(timestamp: int) -> int:

@@ -13,7 +13,6 @@ class Signer:
             private_key = private_key.read()
         elif type(private_key) == str:
             if os.path.isfile(private_key):
-                # try:
                 with open(private_key, "rb") as file:
                     private_key = file.read()
             elif not private_key.startswith("-----BEGIN"):

@@ -35,10 +35,8 @@ class TaxApi(TaxRequest):
         self.expires_in = None
         self.economic_code = economic_code
         self.fiscalId = fiscalId
-        self.private_key = key_validator(private_key)
-        self.public_key = (
-            key_validator(public_key, private=False) if public_key else None
-        )  # used for check sign verification
+        self.private_key = private_key
+        self.public_key = public_key if public_key else None
         self.sync_url = f"{self.TAX_API_URL}/sync"
         self.async_url = f"{self.TAX_API_URL}/async/{priority}"
         self.timestamp = timestamp_validator(timestamp) if timestamp else None
