@@ -55,7 +55,7 @@ or
                 "todam": "0",
             },
             "body" : [{
-                "sstid": "2330001031092",
+                "sstid": "2720000114542",
                 "sstt": "فروش بسته نرم افزاری سامانه ارتباطات ابری تلوبال",
                 # "sstt": "Selling Telobal cloud communication system software package",
                 "am": "XX",
