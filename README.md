@@ -15,10 +15,6 @@ Developed by Arjavand Co (شرکت ارجاوند).
 
 >>> pip install dist/moadian-X.X.X.tar.gz
 
-or 
-
->>> pip install moadian
-
 ```
 
 #### Usage sample:
