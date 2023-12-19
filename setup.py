@@ -32,12 +32,12 @@ setup(
         "certifi==2023.5.7",
         "cffi==1.15.1",
         "charset-normalizer==3.2.0",
-        "cryptography==41.0.1",
+        "cryptography>=41.0.1",
         "idna==3.4",
         "pycparser==2.21",
         "pycryptodome==3.18.0",
         "requests==2.31.0",
-        "urllib3==2.0.3",
+        "urllib3>=2.0.3",
     ],
 )
 
